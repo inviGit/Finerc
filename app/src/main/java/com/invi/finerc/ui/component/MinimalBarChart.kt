@@ -193,7 +193,7 @@ fun MinimalBarChartSynced(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = label.take(2), // Show only first 2 characters
+                                    text = label, // Show only first 2 characters
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.Center

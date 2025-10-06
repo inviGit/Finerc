@@ -1,8 +1,12 @@
+// ============================================
+// build.gradle.kts (App level)
+// ============================================
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    kotlin("kapt")
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27" // REMOVED "apply false"
+    id("com.google.dagger.hilt.android") version "2.52"
 }
 
 android {
@@ -43,12 +47,18 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // For KSP
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,7 +69,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)
 
-    // Debug Preview Tools
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
@@ -74,16 +83,23 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Room dependencies - using consistent version
+    // Room with KSP
     val roomVersion = "2.7.2"
     implementation("androidx.room:room-runtime:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
 
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("io.coil-kt:coil-compose:2.4.0")
-}
 
-kapt {
-    correctErrorTypes = true
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+
+    // Hilt with KSP - matching versions
+    implementation("com.google.dagger:hilt-android:2.52")
+    ksp("com.google.dagger:hilt-compiler:2.52")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
 }

@@ -4,12 +4,11 @@ import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.provider.Telephony
-import com.invi.finerc.models.Category
-import com.invi.finerc.models.SMSType
-import com.invi.finerc.models.SmsMessageModel
+import com.invi.finerc.domain.models.Category
+import com.invi.finerc.domain.models.TransactionType
+import com.invi.finerc.domain.models.TransactionUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.security.MessageDigest
 import java.util.regex.Pattern
 
 // SMS Scanner Class
@@ -29,8 +28,8 @@ class SmsScanner(private val context: Context) {
         "PHONEPE" to listOf("PHONEPE", "PHNEPE")
     )
 
-    suspend fun scanSmsMessages(): List<SmsMessageModel> = withContext(Dispatchers.IO) {
-        val messages = mutableListOf<SmsMessageModel>()
+    suspend fun scanSmsMessages(): List<TransactionUiModel> = withContext(Dispatchers.IO) {
+        val messages = mutableListOf<TransactionUiModel>()
 
         try {
             val contentResolver: ContentResolver = context.contentResolver
@@ -60,31 +59,34 @@ class SmsScanner(private val context: Context) {
                     // Check if this is a transaction SMS
                     if (isTransactionSms(body)) {
 
-                        val transactionType: SMSType = getTransactionType(body)
+                        val transactionType: TransactionType = getTransactionType(body)
                         val amount: Double = extractAmount(body, transactionType) ?: 0.0
                         val bankName = getBankName(address, body)
-                        val place = extractPlace(body) ?: ""
+                        val place = AppUtils.extractPlace(body) ?: ""
                         val category = categorizeTransaction(body)
 
-                        val input = "$address|$date|$body"
-                        val md = MessageDigest.getInstance("SHA-256")
-                        val hashBytes = md.digest(input.toByteArray())
-//                        val id = hashBytes.joinToString("") { "%02x".format(it) }
+//                        val transactionId = AppUtils.generateTransactionId(
+//                            date,
+//                            bankName,
+//                            amount,
+//                            transactionType)
 
-//                        val id = "sms_" + hashBytes.joinToString("") { "%02x".format(it) }
-
-                        messages.add(
-                            SmsMessageModel(
-                                address = address,
-                                body = body,
-                                date = date,
-                                place = place,
-                                transactionType = transactionType,
-                                bankName = bankName,
-                                category = category,
-                                amount = amount
-                            )
-                        )
+//                        messages.add(
+//                            TransactionUiModel(
+//                                id = 0L,
+//                                transactionId = transactionId,
+//                                description = body,
+//                                date = date,
+//                                place = place,
+//                                transactionType = transactionType,
+//                                bankName = bankName,
+//                                category = category,
+//                                amount = amount,
+//                                source = TransactionSource.SMS,
+//                                currencyCode = CurrencyType.INR,
+//                                isInvalid = false
+//                            )
+//                        )
                     }
                 }
             }
@@ -97,41 +99,33 @@ class SmsScanner(private val context: Context) {
 
     private fun isTransactionSms(body: String): Boolean {
         val transactionKeywords = listOf(
-            "spent", "credited", "debited",
-//            "received",
-//             "paid",
-//            "withdrawn",
-//            "deposited",  "transaction", "balance", "₹", "rs", "inr"
+            "spent", "credited", "debited"
         )
         return transactionKeywords.any { body.contains(it, ignoreCase = true) }
     }
 
-    private fun getTransactionType(body: String): SMSType {
+    private fun getTransactionType(body: String): TransactionType {
         return when {
             body.contains("credited", ignoreCase = true) ||
                     body.contains("received", ignoreCase = true) ||
-                    body.contains("deposited", ignoreCase = true) -> SMSType.RECEIVED
+                    body.contains("deposited", ignoreCase = true) -> TransactionType.CREDIT
 
             body.contains("debited", ignoreCase = true) ||
                     body.contains("withdrawn", ignoreCase = true) ||
                     body.contains("spent", ignoreCase = true) ||
-                    body.contains("paid", ignoreCase = true) -> SMSType.SENT
+                    body.contains("paid", ignoreCase = true) -> TransactionType.DEBIT
 
-            else -> SMSType.DRAFT
+            else -> TransactionType.DRAFT
         }
     }
 
-    private fun extractAmount(body: String, transactionType: SMSType): Double? {
+    private fun extractAmount(body: String, transactionType: TransactionType): Double? {
         val amountPattern =
             Pattern.compile("(?:rs|inr|₹)\\s*([0-9,]+(?:\\.[0-9]{2})?)", Pattern.CASE_INSENSITIVE)
         val matcher = amountPattern.matcher(body)
 
         if (matcher.find()) {
-//            if(transactionType.equals(SMSType.SENT)) {
-//                return extractDebitAmount(body)?.amount
-//            } else {
             return matcher.group(1)?.replace(",", "")?.toDoubleOrNull() ?: 0.0
-//            }
         } else {
             return 0.0
         }
@@ -188,57 +182,8 @@ class SmsScanner(private val context: Context) {
         return "Unknown"
     }
 
-    private fun extractPlace(message: String): String? {
-        val lowerMessage = message.lowercase()
-
-        // 1. Check against category keywords (your list of places)
-        for (category in Category.entries) {
-            for (keyword in category.keywords) {
-                val keywordLower = keyword.lowercase()
-                if (lowerMessage.contains(keywordLower)) {
-                    return keyword
-                }
-            }
-        }
-
-        // 2. Fallback to regex patterns (most accurate)
-        val fallbackRegex = Regex(
-            """(?:at|to|on|via|by|pos|txn|thru at|paid to|spent at|purchase at|swiped at)\s+([a-zA-Z0-9&@.\- ]{2,30})""",
-            RegexOption.IGNORE_CASE
-        )
-        val match = fallbackRegex.find(message)
-        val place = match?.groupValues?.getOrNull(1)?.trim()
-
-        return place?.takeIf { it.isNotBlank() }
-    }
-
     fun categorizeTransaction(body: String): Category {
         return Category.fromKeyword(body)
 //        return CategoryModel.fromCategory(category)
     }
-
-//    suspend fun saveToJson(messages: List<SmsMessageDto>): Boolean = withContext(Dispatchers.IO) {
-//        try {
-//            val gson = GsonBuilder().setPrettyPrinting().create()
-//            val jsonString = gson.toJson(messages)
-//
-//            val downloadsDir =
-//                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-//            val fileName = "sms_transactions_${
-//                SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault()).format(
-//                    Date()
-//                )
-//            }.json"
-//            val file = File(downloadsDir, fileName)
-//
-//            FileWriter(file).use { writer ->
-//                writer.write(jsonString)
-//            }
-//
-//            true
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            false
-//        }
-//    }
 }

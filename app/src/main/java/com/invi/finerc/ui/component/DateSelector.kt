@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.invi.finerc.getMonthName
+import com.invi.finerc.common.AppUtils
 import java.time.LocalDate
 
 @Composable
@@ -131,7 +131,7 @@ fun DateSelector(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = getMonthName(month),
+                                        text = AppUtils.getMonthName(month),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = if (isSelected) Color.Black else if (isMonthDisabled) Color.Gray else Color.White,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal

@@ -27,8 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.invi.finerc.models.Category
-import com.invi.finerc.models.CategorySpending
+import com.invi.finerc.domain.models.Category
+import com.invi.finerc.domain.models.CategorySpending
 
 @Composable
 fun CategoryCard(
