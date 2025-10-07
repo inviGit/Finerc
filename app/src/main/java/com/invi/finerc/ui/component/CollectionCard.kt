@@ -30,13 +30,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun CollectionCard(
-    collection: CollectionUiModel,
+    collection: CollectionModel,
     onClick: () -> Unit,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {}
@@ -87,7 +87,7 @@ fun CollectionCard(
                             fontSize = 16.sp
                         )
                         Text(
-                            text = format.format(collection.totalSpent),
+                            text = format.format(collection.totalTransactionAmount),
                             color = Color.White.copy(alpha = 0.9f),
                             fontSize = 14.sp
                         )

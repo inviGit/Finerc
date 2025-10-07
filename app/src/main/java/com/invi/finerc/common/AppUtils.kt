@@ -273,7 +273,20 @@ object AppUtils {
         txnType: TransactionType,
         transactionId: String?
     ): String {
-        val raw = "${bankName.orEmpty()}_${txnDate}_${"%.2f".format(amount)}_${txnType}_${transactionId.orEmpty()}}"
+        val raw =
+            "${bankName.orEmpty()}_${txnDate}_${"%.2f".format(amount)}_${txnType}_${transactionId.orEmpty()}}"
+        return raw.toSha256()
+    }
+
+    fun generateItemUniqueId(
+        orderId: String,
+        orderDate: Long,
+        unitPrice: Double,
+        quantity: Int,
+        productName: String
+    ): String {
+        val raw =
+            "${orderId.orEmpty()}_${orderDate}_${"%.2f".format(unitPrice)}_${quantity}_${productName.orEmpty()}}"
         return raw.toSha256()
     }
 
@@ -361,7 +374,7 @@ object AppUtils {
     fun extractCashbackAmount(amountString: String): Double {
         if (amountString.isEmpty()) return 0.0
 
-        if(amountString.contains("D", ignoreCase = true)) return 0.0
+        if (amountString.contains("D", ignoreCase = true)) return 0.0
 
         return extractAmount(amountString)
     }
@@ -418,7 +431,6 @@ object AppUtils {
         12 to "December"
     )
 }
-
 
 
 // Recover bank/card from "Bank • Card" (bullet separator)

@@ -25,7 +25,7 @@ fun <T> DropdownSelector(
     var expanded by remember { mutableStateOf(false) }
 
 
-    ExposedDropdownMenuBox (
+    ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {

@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +55,7 @@ import java.util.Locale
 
 @Composable
 @Preview
-fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
-{
+fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedYear by remember { mutableStateOf(LocalDate.now().year) }
     var selectedMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
@@ -75,14 +73,15 @@ fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
     }
 
     // Filter smsList by selected year and month
-    val filteredTransactionList = remember(uiState.transactions, selectedYear, selectedMonth, selectedFilter) {
-        val transactions = uiState.transactions
-        val now = System.currentTimeMillis()
-        val cal = Calendar.getInstance()
-        val zone = ZoneId.systemDefault()
+    val filteredTransactionList =
+        remember(uiState.transactions, selectedYear, selectedMonth, selectedFilter) {
+            val transactions = uiState.transactions
+            val now = System.currentTimeMillis()
+            val cal = Calendar.getInstance()
+            val zone = ZoneId.systemDefault()
 
-        val filtered = when {
-            // Filter by specific month and year (if both are selected)
+            val filtered = when {
+                // Filter by specific month and year (if both are selected)
 //            selectedYear != null && selectedMonth != null -> {
 //                transactions.filter { transaction ->
 //                    cal.timeInMillis = transaction.txnDate
@@ -100,48 +99,53 @@ fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
 //                }
 //            }
 
-            // Filter by time period (1M or 1Y)
-            selectedFilter == 0 || selectedFilter == 1 -> {
-                val startMillis = when (selectedFilter) {
-                    0 -> AppUtils.cutoffMillis(AppUtils.CutoffKind.MonthFromDay(1), now, zone)
-                    1 -> AppUtils.cutoffMillis(AppUtils.CutoffKind.YearFromJan1, now, zone)
-                    else -> 0L
+                // Filter by time period (1M or 1Y)
+                selectedFilter == 0 || selectedFilter == 1 -> {
+                    val startMillis = when (selectedFilter) {
+                        0 -> AppUtils.cutoffMillis(AppUtils.CutoffKind.MonthFromDay(1), now, zone)
+                        1 -> AppUtils.cutoffMillis(AppUtils.CutoffKind.YearFromJan1, now, zone)
+                        else -> 0L
+                    }
+                    transactions.filter { it.txnDate >= startMillis }
                 }
-                transactions.filter { it.txnDate >= startMillis }
-            }
 
-            // No filter applied - show all
-            else -> transactions
+                // No filter applied - show all
+                else -> transactions
+            }
+            Log.d(
+                "ReportScreen",
+                "Filtered ${transactions.size} transactions to ${filtered.size} messages. IDs: ${filtered.map { it.id }} Dates: ${filtered.map { it.txnDate }}"
+            )
+            filtered
         }
-        Log.d("ReportScreen", "Filtered ${transactions.size} transactions to ${filtered.size} messages. IDs: ${filtered.map { it.id }} Dates: ${filtered.map { it.txnDate }}")
-        filtered
-    }
 
     // Flat data for chart (filtered messages)
     val allChartData = remember(filteredTransactionList) {
-        filteredTransactionList.groupBy { it.txnDate }.map { (date, txns) ->  SimpleDateFormat(
-            "dd MMM", Locale.getDefault()
-        ).format(Date(date)) to txns.sumOf { it.amount } }.sortedBy { it.first }
+        filteredTransactionList.groupBy { it.txnDate }.map { (date, txns) ->
+            SimpleDateFormat(
+                "dd MMM", Locale.getDefault()
+            ).format(Date(date)) to txns.sumOf { it.amount }
+        }.sortedBy { it.first }
     }
 
     // Top 5 categories by spend with percentage
     val topCategories = remember(filteredTransactionList) {
         val total = filteredTransactionList.sumOf { it.amount }
         filteredTransactionList.groupBy { it.category }.map { (cat, txns) ->
-                val sum = txns.sumOf { it.amount }
-                val percent = if (total > 0) sum / total else 0.0
-                Triple(cat, sum, percent)
-            }.sortedByDescending { it.second }.take(5)
+            val sum = txns.sumOf { it.amount }
+            val percent = if (total > 0) sum / total else 0.0
+            Triple(cat, sum, percent)
+        }.sortedByDescending { it.second }.take(5)
     }
 
     // Top 5 places by spend with percentage
     val topPlaces = remember(filteredTransactionList) {
         val total = filteredTransactionList.sumOf { it.amount }
         filteredTransactionList.groupBy { it.place }.map { (place, txns) ->
-                val sum = txns.sumOf { it.amount }
-                val percent = if (total > 0) sum / total else 0.0
-                Triple(place ?:"", sum, percent)
-            }.filter { it.first.isNotBlank() }.sortedByDescending { it.second }.take(5)
+            val sum = txns.sumOf { it.amount }
+            val percent = if (total > 0) sum / total else 0.0
+            Triple(place ?: "", sum, percent)
+        }.filter { it.first.isNotBlank() }.sortedByDescending { it.second }.take(5)
     }
 
     LazyColumn(
@@ -152,7 +156,7 @@ fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Header
-        item { TitleHeader("Spending Analytics","Track your spending patterns") }
+        item { TitleHeader("Spending Analytics", "Track your spending patterns") }
 
         // Year and Month Selector
         item {
@@ -235,7 +239,9 @@ fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
                                         .height(4.dp)
                                         .clip(RoundedCornerShape(2.dp)),
                                     color = category?.color ?: Color(0xFFEF4444),
-                                    trackColor = category?.color?.copy(alpha = 0.2f) ?: Color(0xFFEF4444).copy(alpha = 0.2f)
+                                    trackColor = category?.color?.copy(alpha = 0.2f) ?: Color(
+                                        0xFFEF4444
+                                    ).copy(alpha = 0.2f)
                                 )
                             }
 
@@ -315,7 +321,9 @@ fun ReportScreen(viewModel: TransactionViewModel = hiltViewModel())
                                         .height(4.dp)
                                         .clip(RoundedCornerShape(2.dp)),
                                     color = getCategoryByPlace(place.orEmpty()).color,
-                                    trackColor = getCategoryByPlace(place.orEmpty()).color.copy(alpha = 0.2f)
+                                    trackColor = getCategoryByPlace(place.orEmpty()).color.copy(
+                                        alpha = 0.2f
+                                    )
                                 )
                             }
 
@@ -358,14 +366,18 @@ fun ReportStatsSection(filteredList: List<TransactionUiModel>) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        StatsSection(totalSpent = totalSpent,
+        StatsSection(
+            totalSpent = totalSpent,
             avgTransaction = avgTransaction,
-            format = format)
-        CompactStatCard(title = "Highest Spending",
+            format = format
+        )
+        CompactStatCard(
+            title = "Highest Spending",
             value = "₹${String.format("%.0f", maxSpent)}",
             icon = Icons.Default.TrendingUp,
             gradient = listOf(Color(0xFFDD5E89), Color(0xFFF7BB97)),
-            modifier = Modifier.fillMaxWidth())
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

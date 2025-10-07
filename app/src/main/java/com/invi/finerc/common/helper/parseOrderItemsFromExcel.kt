@@ -1,16 +1,16 @@
 package com.invi.finerc.common.helper
 
-import com.invi.finerc.domain.models.OrderItemRecord
+import com.invi.finerc.domain.models.TransactionItemModel
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.InputStream
 import java.time.Instant
 
-suspend fun parseOrderItemsFromExcel(inputStream: InputStream): List<OrderItemRecord> {
+suspend fun parseOrderItemsFromExcel(inputStream: InputStream): List<TransactionItemModel> {
     val workbook = WorkbookFactory.create(inputStream)
     val sheet = workbook.getSheetAt(0) // Assuming first sheet
 
-    val orderItems = mutableListOf<OrderItemRecord>()
+    val orderItems = mutableListOf<TransactionItemModel>()
 
     val headerRow = sheet.getRow(0)
     val headers = headerRow.map { it.stringCellValue.trim() }
@@ -50,7 +50,10 @@ suspend fun parseOrderItemsFromExcel(inputStream: InputStream): List<OrderItemRe
         val dateCell = row.getCell(orderDateCol)
         val orderDate: Long = when (dateCell.cellType) {
             CellType.NUMERIC -> dateCell.dateCellValue.time
-            CellType.STRING -> { Instant.parse(dateCell.stringCellValue).toEpochMilli() }
+            CellType.STRING -> {
+                Instant.parse(dateCell.stringCellValue).toEpochMilli()
+            }
+
             else -> continue
         }
 
@@ -59,15 +62,17 @@ suspend fun parseOrderItemsFromExcel(inputStream: InputStream): List<OrderItemRe
         val shippingCharge = parseAndValidateNumber(row.getCell(shippingChargeCol)?.toString())
         val totalDiscounts = parseAndValidateNumber(row.getCell(totalDiscountsCol)?.toString())
         val totalOwed = parseAndValidateNumber(row.getCell(totalOwedCol)?.toString())
-        val shipmentSubtotal = parseAndValidateNumber(row.getCell(shipmentItemSubtotalCol)?.toString())
-        val shipmentSubtotalTax = parseAndValidateNumber(row.getCell(shipmentItemSubtotalTaxCol)?.toString())
+        val shipmentSubtotal =
+            parseAndValidateNumber(row.getCell(shipmentItemSubtotalCol)?.toString())
+        val shipmentSubtotalTax =
+            parseAndValidateNumber(row.getCell(shipmentItemSubtotalTaxCol)?.toString())
         val quantity = parseAndValidateNumber(row.getCell(quantityCol)?.toString()).toInt()
         val paymentInstrumentType = row.getCell(paymentInstrumentTypeCol)?.stringCellValue ?: ""
         val orderStatus = row.getCell(orderStatusCol)?.stringCellValue ?: ""
         val productName = row.getCell(productNameCol)?.stringCellValue ?: ""
 
         orderItems.add(
-            OrderItemRecord(
+            TransactionItemModel(
                 orderId = orderId,
                 orderDate = orderDate,
                 unitPrice = unitPrice,

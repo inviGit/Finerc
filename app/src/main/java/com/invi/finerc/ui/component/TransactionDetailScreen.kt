@@ -36,12 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.invi.finerc.common.AppUtils
 import com.invi.finerc.domain.models.Category
+import com.invi.finerc.domain.models.TransactionItemModel
 import com.invi.finerc.domain.models.TransactionType
 import com.invi.finerc.domain.models.TransactionUiModel
 import com.invi.finerc.ui.screen.getCategoryColors
@@ -73,7 +73,11 @@ fun TransactionDetailScreen(
     var note by remember { mutableStateOf("") }
     var showBulkDeleteDialog by remember { mutableStateOf(false) }
     var transactionsByPlace by remember { mutableStateOf<List<TransactionUiModel>>(emptyList()) }
-    var transactionItems by remember { mutableStateOf<List<com.invi.finerc.data.entity.TransactionItemEntity>>(emptyList()) }
+    var transactionItems by remember {
+        mutableStateOf<List<TransactionItemModel>>(
+            emptyList()
+        )
+    }
 
     LaunchedEffect(transactionId) {
         viewModel.loadTransaction(transactionId)
@@ -206,11 +210,12 @@ fun TransactionDetailScreen(
                         else -> Long.MAX_VALUE
                     }
 
-                    transactionsByPlace.filter { it.txnDate >= filterMillis }.groupBy { it.txnDate }.map { (date, txns) ->
-                        SimpleDateFormat(
-                            "dd MMM", Locale.getDefault()
-                        ).format(Date(date)) to txns.sumOf { it.amount }
-                    }
+                    transactionsByPlace.filter { it.txnDate >= filterMillis }.groupBy { it.txnDate }
+                        .map { (date, txns) ->
+                            SimpleDateFormat(
+                                "dd MMM", Locale.getDefault()
+                            ).format(Date(date)) to txns.sumOf { it.amount }
+                        }
                 }
 
                 MinimalBarChartSynced(
@@ -272,16 +277,27 @@ fun TransactionDetailScreen(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Items in this transaction", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                        Text(
+                            "Items in this transaction",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
                         Spacer(Modifier.height(8.dp))
                         transactionItems.forEach { item ->
                             Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                Text("Product: ${item.productName}", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Product: ${item.productName}",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Text("Order ID: ${item.orderId}", color = Color.Gray)
                                 Text("Quantity: ${item.quantity}", color = Color.Gray)
                                 Text("Unit Price: ₹${item.unitPrice}", color = Color.Gray)
                                 if (item.returnAmount > 0) {
-                                    Text("Returned: ₹${item.returnAmount}", color = Color(0xFFEF4444))
+                                    Text(
+                                        "Returned: ₹${item.returnAmount}",
+                                        color = Color(0xFFEF4444)
+                                    )
                                 }
                             }
                             Divider(color = Color.White.copy(alpha = 0.1f))
@@ -408,16 +424,5 @@ fun TransactionDetailHeaderSection(
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun TransactionDetailScreenPreview() {
-    androidx.compose.material3.MaterialTheme {
-        TransactionDetailScreen(
-            transactionId = 12L, navController = androidx.navigation.compose.rememberNavController()
-        )
     }
 }

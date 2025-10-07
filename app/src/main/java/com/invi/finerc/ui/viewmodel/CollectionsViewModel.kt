@@ -3,7 +3,7 @@ package com.invi.finerc.ui.viewmodel
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import com.invi.finerc.service.CollectionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,7 @@ class CollectionsViewModel @Inject constructor(
     }
 
     // Reactive UI Flow for collection list
-    val collections: StateFlow<List<CollectionUiModel>> =
+    val collections: StateFlow<List<CollectionModel>> =
         collectionService.getCollectionsWithStatsFlow().stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

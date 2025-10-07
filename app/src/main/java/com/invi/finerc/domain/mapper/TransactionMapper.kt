@@ -5,6 +5,7 @@ import com.invi.finerc.data.entity.TransactionEntity
 import com.invi.finerc.data.entity.TransactionItemEntity
 import com.invi.finerc.domain.models.Category
 import com.invi.finerc.domain.models.CurrencyType
+import com.invi.finerc.domain.models.TransactionItemModel
 import com.invi.finerc.domain.models.TransactionSource
 import com.invi.finerc.domain.models.TransactionStatus
 import com.invi.finerc.domain.models.TransactionType
@@ -12,19 +13,19 @@ import com.invi.finerc.domain.models.TransactionUiModel
 
 object TransactionMapper {
     fun entityToUiModel(entity: TransactionEntity) = TransactionUiModel(
-            id = entity.id,
-            source = entity.source ?: TransactionSource.UN_ASSIGNED,
-            txnType = entity.txnType ?: TransactionType.UN_ASSIGNED,
-            amount = entity.amount,
-            txnDate = entity.txnDate,
-            bankName = entity.bankName.orEmpty(),
-            category = entity.category ?: Category.OTHERS,
-            place = entity.place.orEmpty(),
-            description = entity.description.orEmpty(),
-            note = entity.note.orEmpty(),
-            currencyCode = entity.currencyCode ?: CurrencyType.INR,
-            status = entity.status ?: TransactionStatus.ACTIVE
-        )
+        id = entity.id,
+        source = entity.source ?: TransactionSource.UN_ASSIGNED,
+        txnType = entity.txnType ?: TransactionType.UN_ASSIGNED,
+        amount = entity.amount,
+        txnDate = entity.txnDate,
+        bankName = entity.bankName.orEmpty(),
+        category = entity.category ?: Category.OTHERS,
+        place = entity.place.orEmpty(),
+        description = entity.description.orEmpty(),
+        note = entity.note.orEmpty(),
+        currencyCode = entity.currencyCode ?: CurrencyType.INR,
+        status = entity.status ?: TransactionStatus.ACTIVE
+    )
 
     fun uiModelToEntity(transactionUiModel: TransactionUiModel): TransactionEntity {
         val transactionId = AppUtils.generateTransactionId(
@@ -32,7 +33,8 @@ object TransactionMapper {
             transactionUiModel.bankName,
             transactionUiModel.amount,
             transactionUiModel.txnType ?: TransactionType.DRAFT,
-            transactionUiModel.description ?: "")
+            transactionUiModel.description ?: ""
+        )
 
         return TransactionEntity(
             id = transactionUiModel.id ?: 0L,
@@ -75,8 +77,9 @@ object TransactionMapper {
         )
     }
 
-    fun entityToUiModelWithItems(entity: TransactionEntity,
-                         items: List<TransactionItemEntity> = emptyList()
+    fun entityToUiModelWithItems(
+        entity: TransactionEntity,
+        items: List<TransactionItemEntity> = emptyList()
     ) = TransactionUiModel(
         id = entity.id,
         source = entity.source ?: TransactionSource.UN_ASSIGNED,
@@ -90,7 +93,30 @@ object TransactionMapper {
         note = entity.note.orEmpty(),
         currencyCode = entity.currencyCode ?: CurrencyType.INR,
         status = entity.status ?: TransactionStatus.ACTIVE,
-        transactionItem = items
+        transactionItems = items.map { item -> txnItemEntityToModel(item) }
     )
+
+    fun txnItemEntityToModel(entity: TransactionItemEntity) =
+        TransactionItemModel(
+            itemId = entity.itemId,
+            orderId = entity.orderId,
+            orderDate = entity.orderDate,
+            unitPrice = entity.unitPrice,
+            unitPriceTax = entity.unitPriceTax,
+            shippingCharge = entity.shippingCharge,
+            totalDiscount = entity.totalDiscount,
+            totalOwed = entity.totalOwed,
+            shipmentItemSubtotal = entity.shipmentItemSubtotal,
+            shipmentItemSubtotalTax = entity.shipmentItemSubtotalTax,
+            quantity = entity.quantity,
+            paymentInstrument = entity.paymentInstrument,
+            orderStatus = entity.orderStatus,
+            productName = entity.productName,
+            contractId = entity.contractId,
+            returnDate = entity.returnDate,
+            returnAmount = entity.returnAmount,
+            returnReason = entity.returnReason,
+            resolution = entity.resolution
+        )
 
 }

@@ -1,6 +1,7 @@
 package com.invi.finerc.domain.models
 
-data class OrderItemRecord(
+data class TransactionItemModel(
+    val itemId: Long = 0,
     val orderId: String,
     val orderDate: Long,
     val unitPrice: Double,

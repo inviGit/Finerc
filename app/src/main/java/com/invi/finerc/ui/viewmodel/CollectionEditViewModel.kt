@@ -4,8 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.invi.finerc.data.entity.CollectionItemExclusionEntity
-import com.invi.finerc.data.entity.CollectionWithTransactionsEntity
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import com.invi.finerc.service.CollectionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +20,8 @@ class CollectionEditViewModel @Inject constructor(
 
     private val collectionId: Long = savedStateHandle.get<Long>("collectionId") ?: 0L
 
-    private val _collection = MutableStateFlow<CollectionUiModel?>(null)
-    val collection: StateFlow<CollectionUiModel?> = _collection.asStateFlow()
+    private val _collection = MutableStateFlow<CollectionModel?>(null)
+    val collection: StateFlow<CollectionModel?> = _collection.asStateFlow()
 
     private val _excludedItems = MutableStateFlow<Set<Long>>(emptySet())
     val excludedItems: StateFlow<Set<Long>> = _excludedItems.asStateFlow()
@@ -85,7 +84,7 @@ class CollectionEditViewModel @Inject constructor(
     fun saveCollection() {
         viewModelScope.launch {
             _collection.value?.let {
-                service.updateCollection( it.id, it.name)
+                service.updateCollection(it.id, it.name)
             }
         }
     }

@@ -49,7 +49,7 @@ fun CompactStatCard(
                 )
                 .padding(16.dp)
         ) {
-            Row (
+            Row(
                 modifier = Modifier.fillMaxSize(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically

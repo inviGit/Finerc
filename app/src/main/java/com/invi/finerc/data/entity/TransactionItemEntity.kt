@@ -15,10 +15,12 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("transactionId")]
+    indices = [Index("transactionId"),
+        Index(value = ["uniqueId"], unique = true)]
 )
 data class TransactionItemEntity(
     @PrimaryKey(autoGenerate = true) val itemId: Long = 0,
+    val uniqueId: String,
     val transactionId: Long,
     val orderId: String,
     val orderDate: Long,

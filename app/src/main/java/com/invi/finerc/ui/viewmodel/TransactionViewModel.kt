@@ -9,6 +9,8 @@ import com.invi.finerc.common.BankType
 import com.invi.finerc.common.PdfTableReader
 import com.invi.finerc.common.helper.parseOrderItemsFromExcel
 import com.invi.finerc.data.entity.TransactionEntity
+import com.invi.finerc.domain.mapper.TransactionMapper
+import com.invi.finerc.domain.models.TransactionItemModel
 import com.invi.finerc.domain.models.TransactionUiModel
 import com.invi.finerc.domain.models.TransactionsUiState
 import com.invi.finerc.service.TransactionService
@@ -18,12 +20,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +33,7 @@ import javax.inject.Inject
 class TransactionViewModel @Inject constructor(
     private val transactionService: TransactionService,
     @ApplicationContext private val context: Context
-) : ViewModel()
-{
+) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     private val _saveState = MutableStateFlow<SaveState>(SaveState.Idle)
@@ -45,7 +44,8 @@ class TransactionViewModel @Inject constructor(
     private var pdfProcessingJob: Job? = null
     private var isCancellationRequested = false
 
-    private val _uiState = MutableStateFlow<TransactionsUiState>(TransactionsUiState(isLoading = true))
+    private val _uiState =
+        MutableStateFlow<TransactionsUiState>(TransactionsUiState(isLoading = true))
     val uiState: StateFlow<TransactionsUiState> = _uiState.asStateFlow()
 
     init {
@@ -56,11 +56,13 @@ class TransactionViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, error = e.message) }
                 }
                 .collect { transactions ->
-                    _uiState.update { it.copy(
-                        transactions = transactions,
-                        isLoading = false,
-                        error = null
-                    )}
+                    _uiState.update {
+                        it.copy(
+                            transactions = transactions,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                 }
         }
     }
@@ -314,7 +316,8 @@ class TransactionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 withContext(Dispatchers.Main) {
-                    _excelProcessingState.value = ExcelProcessingState.Processing("Reading Excel file...")
+                    _excelProcessingState.value =
+                        ExcelProcessingState.Processing("Reading Excel file...")
                     _isLoading.value = true
                 }
 
@@ -338,7 +341,8 @@ class TransactionViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _excelProcessingState.value = ExcelProcessingState.Error("Error processing Excel: ${e.message}")
+                    _excelProcessingState.value =
+                        ExcelProcessingState.Error("Error processing Excel: ${e.message}")
                 }
             } finally {
                 withContext(Dispatchers.Main) {
@@ -348,8 +352,9 @@ class TransactionViewModel @Inject constructor(
         }
     }
 
-    suspend fun getTransactionItems(transactionId: Long): List<com.invi.finerc.data.entity.TransactionItemEntity> {
+    suspend fun getTransactionItems(transactionId: Long): List<TransactionItemModel> {
         return transactionService.getTransactionItems(transactionId)
+            .map { item -> TransactionMapper.txnItemEntityToModel(item) }
     }
 }
 

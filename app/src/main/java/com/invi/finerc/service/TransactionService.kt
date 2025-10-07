@@ -1,11 +1,12 @@
 package com.invi.finerc.service
 
 import android.util.Log
+import com.invi.finerc.common.AppUtils
 import com.invi.finerc.data.entity.TransactionEntity
 import com.invi.finerc.data.entity.TransactionItemEntity
 import com.invi.finerc.data.repository.TransactionRepository
 import com.invi.finerc.domain.mapper.TransactionMapper
-import com.invi.finerc.domain.models.OrderItemRecord
+import com.invi.finerc.domain.models.TransactionItemModel
 import com.invi.finerc.domain.models.TransactionUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -82,7 +83,7 @@ class TransactionService @Inject constructor(
         Log.d("TransactionService", "Entity cache cleared")
     }
 
-    suspend fun linkOrderItemsToTransactions(orderItems: List<OrderItemRecord>) {
+    suspend fun linkOrderItemsToTransactions(orderItems: List<TransactionItemModel>) {
         // Helper to truncate ISO datetime to yyyy-MM-dd HH:mm
         fun truncateMillisToDateHourMinute(millis: Long): String {
             val instant = Instant.ofEpochMilli(millis)
@@ -104,7 +105,8 @@ class TransactionService @Inject constructor(
             // Find matching transaction by place, date +- 1 day, amount
             // Convert truncated string back to millis for date match
             val transactionDateMillis = Instant.from(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneOffset.UTC).parse(dateHourMinute)
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneOffset.UTC)
+                    .parse(dateHourMinute)
             ).toEpochMilli()
 
             val matchedTransaction = transactionRepository.findMatchingTransaction(
@@ -116,6 +118,13 @@ class TransactionService @Inject constructor(
             if (matchedTransaction != null) {
                 val dbItems = items.map {
                     TransactionItemEntity(
+                        uniqueId = AppUtils.generateItemUniqueId(
+                            it.orderId,
+                            it.orderDate,
+                            it.unitPrice,
+                            it.quantity,
+                            it.productName
+                        ),
                         transactionId = matchedTransaction.id,
                         orderId = it.orderId,
                         orderDate = it.orderDate,
@@ -136,7 +145,7 @@ class TransactionService @Inject constructor(
                         returnReason = "",
                         resolution = "",
 
-                    )
+                        )
                 }
 
                 transactionRepository.saveTransactionItems(dbItems)

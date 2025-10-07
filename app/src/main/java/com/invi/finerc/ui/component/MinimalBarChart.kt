@@ -143,7 +143,8 @@ fun MinimalBarChartSynced(
                                 ) {
                                     if (size.height <= 0f) return@Canvas
                                     val chartHeight = size.height
-                                    val safeValue = if (value.isFinite() && value > 0.0) value else 0.0
+                                    val safeValue =
+                                        if (value.isFinite() && value > 0.0) value else 0.0
                                     val rawBarHeight =
                                         ((safeValue / maxValue.toFloat()) * chartHeight).toFloat()
                                     // Ensure non-zero height to avoid equal startY and endY in gradient
@@ -272,7 +273,8 @@ fun MinimalBarChart(
 
                     data.forEachIndexed { index, (_, value) ->
                         val safeValue = if (value.isFinite() && value > 0.0) value else 0.0
-                        val rawBarHeight = ((safeValue / maxValue.toFloat()) * chartHeight).toFloat()
+                        val rawBarHeight =
+                            ((safeValue / maxValue.toFloat()) * chartHeight).toFloat()
                         // Ensure non-zero height to avoid equal startY and endY in gradient
                         val barHeight = rawBarHeight.coerceAtLeast(1f)
                         val barLeft = startX + (index * (barWidthPx + barSpacingPx))

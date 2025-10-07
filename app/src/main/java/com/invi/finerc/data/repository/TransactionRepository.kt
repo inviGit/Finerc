@@ -14,7 +14,6 @@ import com.invi.finerc.data.entity.TransactionItemEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -77,8 +76,8 @@ class TransactionRepository @Inject constructor(
     // ========== Transaction Item Operations ==========
     suspend fun saveTransactionItems(items: List<TransactionItemEntity>) =
         withContext(Dispatchers.IO) {
-        transactionItemDao.insertItems(items)
-    }
+            transactionItemDao.insertItems(items)
+        }
 
     suspend fun getTransactionItems(transactionId: Long): List<TransactionItemEntity> =
         withContext(Dispatchers.IO) {
@@ -131,6 +130,10 @@ class TransactionRepository @Inject constructor(
 
     fun getExcludedItemsFlow(collectionId: Long): Flow<List<CollectionItemExclusionEntity>> {
         return collectionDao.getExcludedItemsFlow(collectionId)
+    }
+
+    suspend fun getExcludedItems(collectionId: Long): List<CollectionItemExclusionEntity> {
+        return collectionDao.getExcludedItems(collectionId)
     }
 
     suspend fun insertExclusion(exclusion: CollectionItemExclusionEntity) =

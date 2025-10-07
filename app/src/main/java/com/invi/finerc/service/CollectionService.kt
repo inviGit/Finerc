@@ -1,14 +1,12 @@
 package com.invi.finerc.service
 
-import com.invi.finerc.data.entity.CollectionEntity
 import com.invi.finerc.data.entity.CollectionItemExclusionEntity
 import com.invi.finerc.data.entity.CollectionSmsMappingEntity
 import com.invi.finerc.data.entity.CollectionWithStatsEntity
-import com.invi.finerc.data.entity.CollectionWithTransactionsEntity
 import com.invi.finerc.data.repository.TransactionRepository
 import com.invi.finerc.domain.mapper.CollectionMapper
 import com.invi.finerc.domain.mapper.TransactionMapper
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -22,24 +20,28 @@ class CollectionService @Inject constructor(
 
     suspend fun createCollection(name: String): Long = transactionRepository.createCollection(name)
 
-    fun getCollectionsWithStatsFlow(): Flow<List<CollectionUiModel>> =
+    fun getCollectionsWithStatsFlow(): Flow<List<CollectionModel>> =
         transactionRepository.getCollectionsWithStatsFlow().map { list ->
             list.forEach { entityStateCache[it.collection.id] = it }
             list.map { CollectionMapper.entityToUiModel(it) }
         }
 
-    fun getCollectionWithTransactionsFlow(collectionId: Long): Flow<CollectionUiModel> {
+    fun getCollectionWithTransactionsFlow(collectionId: Long): Flow<CollectionModel> {
         return transactionRepository.getCollectionWithTransactionsFlow(collectionId).map { entity ->
             val transactionsWithItems = entity.transactions.map { transaction ->
                 val items = transactionRepository.getTransactionItems(transaction.id)
-                TransactionMapper.entityToUiModelWithItems(transaction, items)
+                val excludedItems = transactionRepository.getExcludedItems(entity.collection.id)
+                val excludedItemIds = excludedItems.map { it.id }.toSet()
+                TransactionMapper.entityToUiModelWithItems(
+                    transaction,
+                    items.filter { it.itemId !in excludedItemIds })
             }
 
-            CollectionUiModel(
+            CollectionModel(
                 id = entity.collection.id,
                 name = entity.collection.name,
                 transactionCount = entity.transactions.size,
-                totalSpent = entity.transactions.sumOf { it.amount },
+                totalTransactionAmount = entity.transactions.sumOf { it.amount },
                 transactions = transactionsWithItems
             )
         }

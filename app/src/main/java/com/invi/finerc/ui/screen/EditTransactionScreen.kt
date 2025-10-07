@@ -68,7 +68,10 @@ fun EditTransactionScreen(
     }
 
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        OutlinedTextField(value = place ?: "", onValueChange = { place = it }, label = { Text("Place") })
+        OutlinedTextField(
+            value = place ?: "",
+            onValueChange = { place = it },
+            label = { Text("Place") })
 
         DropdownSelector(
             label = "Category",
@@ -86,20 +89,34 @@ fun EditTransactionScreen(
             toDisplayString = { it?.name.orEmpty() }
         )
 
-        OutlinedTextField(value = bankName.orEmpty(), onValueChange = { bankName = it }, label = { Text("Bank Name") })
+        OutlinedTextField(
+            value = bankName.orEmpty(),
+            onValueChange = { bankName = it },
+            label = { Text("Bank Name") })
 
-        OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+        OutlinedTextField(
+            value = amount,
+            onValueChange = { amount = it },
+            label = { Text("Amount") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
 
         // Time picker button (shows current selected time)
         val formattedTime = remember(txnDate) {
             SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(txnDate))
         }
         Text(text = "Transaction Time: $formattedTime")
-        TimePickerDialogSample (initialTimeMillis = txnDate, onTimeSelected = { txnDate = it })
+        TimePickerDialogSample(initialTimeMillis = txnDate, onTimeSelected = { txnDate = it })
 
-        OutlinedTextField(value = description.orEmpty(), onValueChange = { description = it }, label = { Text("Description") })
+        OutlinedTextField(
+            value = description.orEmpty(),
+            onValueChange = { description = it },
+            label = { Text("Description") })
 
-        OutlinedTextField(value = note.orEmpty(), onValueChange = { note = it }, label = { Text("Note") })
+        OutlinedTextField(
+            value = note.orEmpty(),
+            onValueChange = { note = it },
+            label = { Text("Note") })
 
         Button(onClick = {
             val amountDouble = amount.toDoubleOrNull() ?: 0.0

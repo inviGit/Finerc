@@ -191,8 +191,16 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                 title = "Data Management",
                 settings = listOf(
                     SettingItem("Scan SMS", Icons.Default.Email, "Import transactions from SMS"),
-                    SettingItem("Upload Bank PDF", Icons.Default.FileUpload, "Import bank statement"),
-                    SettingItem("Upload Excel", Icons.Default.FileUpload, "Import order items from Excel"),  // New
+                    SettingItem(
+                        "Upload Bank PDF",
+                        Icons.Default.FileUpload,
+                        "Import bank statement"
+                    ),
+                    SettingItem(
+                        "Upload Excel",
+                        Icons.Default.FileUpload,
+                        "Import order items from Excel"
+                    ),  // New
                     SettingItem("Export Data", Icons.Default.Download, "Download your data")
                 ),
                 onSettingClick = { setting ->
@@ -244,6 +252,7 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                     }
                 }
             }
+
             is TransactionViewModel.PdfProcessingState.Success -> {
                 item {
                     ResultCard(
@@ -253,6 +262,7 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                     )
                 }
             }
+
             is TransactionViewModel.PdfProcessingState.Error -> {
                 item {
                     ResultCard(
@@ -262,6 +272,7 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                     )
                 }
             }
+
             is TransactionViewModel.PdfProcessingState.Cancelled -> {
                 item {
                     ResultCard(
@@ -271,7 +282,9 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                     )
                 }
             }
-            TransactionViewModel.PdfProcessingState.Idle -> { /* No card */ }
+
+            TransactionViewModel.PdfProcessingState.Idle -> { /* No card */
+            }
         }
 
         when (val state = excelProcessingState) {
@@ -296,25 +309,35 @@ fun SettingsScreen(viewModel: TransactionViewModel = hiltViewModel()) {
                     }
                 }
             }
+
             is TransactionViewModel.ExcelProcessingState.Success -> {
                 item {
                     ResultCard(
                         message = state.message,
                         isSuccess = true,
-                        onDismiss = { viewModel._excelProcessingState.value = TransactionViewModel.ExcelProcessingState.Idle }
+                        onDismiss = {
+                            viewModel._excelProcessingState.value =
+                                TransactionViewModel.ExcelProcessingState.Idle
+                        }
                     )
                 }
             }
+
             is TransactionViewModel.ExcelProcessingState.Error -> {
                 item {
                     ResultCard(
                         message = state.message,
                         isSuccess = false,
-                        onDismiss = { viewModel._excelProcessingState.value = TransactionViewModel.ExcelProcessingState.Idle }
+                        onDismiss = {
+                            viewModel._excelProcessingState.value =
+                                TransactionViewModel.ExcelProcessingState.Idle
+                        }
                     )
                 }
             }
-            TransactionViewModel.ExcelProcessingState.Idle -> { /* No card */ }
+
+            TransactionViewModel.ExcelProcessingState.Idle -> { /* No card */
+            }
         }
 
         // SMS Scan Result

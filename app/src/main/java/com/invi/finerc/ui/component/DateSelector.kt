@@ -106,7 +106,9 @@ fun DateSelector(
                         .height(120.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isMonthDisabled) Color(0xFF1A1A1A) else Color(0xFF2A2A2A)
+                        containerColor = if (isMonthDisabled) Color(0xFF1A1A1A) else Color(
+                            0xFF2A2A2A
+                        )
                     )
                 ) {
                     Box(

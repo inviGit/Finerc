@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -84,7 +83,9 @@ fun OverviewScreen(
             // Header Section
             item {
                 DetailedHeader(
-                    totalAmount = totalAmount, messageCount = txnCount, isLoading = uiState.isLoading
+                    totalAmount = totalAmount,
+                    messageCount = txnCount,
+                    isLoading = uiState.isLoading
                 )
             }
 
@@ -175,7 +176,10 @@ fun OverviewScreen(
     }
 }
 
-fun applyFilterToTransactions(transactions: List<TransactionUiModel>, selectedFilter: Int): List<TransactionUiModel> {
+fun applyFilterToTransactions(
+    transactions: List<TransactionUiModel>,
+    selectedFilter: Int
+): List<TransactionUiModel> {
     val cal = Calendar.getInstance()
     val now = System.currentTimeMillis()
     cal.timeInMillis = now

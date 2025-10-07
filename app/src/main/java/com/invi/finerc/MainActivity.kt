@@ -113,7 +113,7 @@ fun FinercApp() {
             startDestination = "overview",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("overview") { OverviewScreen(navController, ) }
+            composable("overview") { OverviewScreen(navController) }
             composable("reports") { ReportScreen() }
 
             composable("collections") {
@@ -132,7 +132,7 @@ fun FinercApp() {
                 arguments = listOf(navArgument("transactionId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getLong("transactionId") ?: 0L
-                EditTransactionScreen (transactionId = transactionId, navController = navController)
+                EditTransactionScreen(transactionId = transactionId, navController = navController)
             }
             composable("allTransactions") { AllTransactionsScreen(navController) }
             composable(
@@ -140,7 +140,10 @@ fun FinercApp() {
                 arguments = listOf(navArgument("transactionId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getLong("transactionId") ?: 0L
-                TransactionDetailScreen(transactionId = transactionId, navController = navController)
+                TransactionDetailScreen(
+                    transactionId = transactionId,
+                    navController = navController
+                )
             }
 
             composable(

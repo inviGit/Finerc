@@ -80,11 +80,11 @@ class IciciBankStatementParser {
                     j++
                 }
 
-                var fullTransaction = builder.toString().replace("\\s+".toRegex(), " ").trim().replace(",", "")
+                var fullTransaction =
+                    builder.toString().replace("\\s+".toRegex(), " ").trim().replace(",", "")
 
                 var txnType: TransactionType = TransactionType.UN_ASSIGNED
-                if(fullTransaction.endsWith("CR"))
-                {
+                if (fullTransaction.endsWith("CR")) {
                     txnType = TransactionType.CREDIT
                     fullTransaction = fullTransaction.split("CR")[0]
                 }
@@ -106,9 +106,8 @@ class IciciBankStatementParser {
                     }
 
                     val amount = amountStr.replace(",", "").toDoubleOrNull() ?: 0.0
-                    if (txnType != TransactionType.UN_ASSIGNED)
-                    {
-                        txnType =  if (amount >= 0) TransactionType.DEBIT else TransactionType.CREDIT
+                    if (txnType != TransactionType.UN_ASSIGNED) {
+                        txnType = if (amount >= 0) TransactionType.DEBIT else TransactionType.CREDIT
                     }
 
                     val transactionId = AppUtils.generateTransactionId(

@@ -61,11 +61,16 @@ fun CollectionDetailScreen(
     }
 
     val transactions = collection?.transactions ?: emptyList()
-    val totalAmount = collection?.totalSpent ?: 0.0
+    val totalAmount = collection?.transactions
+        ?.flatMap { it.transactionItems.orEmpty() }
+        ?.sumOf { (it.unitPrice + it.unitPriceTax) * it.quantity }
+        ?: 0.0
     val txnCount = collection?.transactionCount ?: 0
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)) {
             // Header with padding
             DetailedHeader(
                 totalAmount = totalAmount,
@@ -83,12 +88,12 @@ fun CollectionDetailScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(transactions) { message ->
+                items(transactions) { txn ->
                     TransactionCard(
-                        message = message,
-                        items = message.transactionItem.orEmpty(),
+                        message = txn,
+                        items = txn.transactionItems.orEmpty(),
                         onClick = {
-                            navController?.navigate("transactionDetail?transactionId=${message.id}")
+                            navController?.navigate("transactionDetail?transactionId=${txn.id}")
                         }
                     )
                 }

@@ -77,7 +77,8 @@ fun DetailedHeader(
                         )
                         Text(
                             text = if (isLoading) "Loading..." else AppUtils.formatCurrency(
-                                BigDecimal.valueOf(totalAmount), CurrencyType.INR, null),
+                                BigDecimal.valueOf(totalAmount), CurrencyType.INR, null
+                            ),
                             style = MaterialTheme.typography.headlineLarge,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold

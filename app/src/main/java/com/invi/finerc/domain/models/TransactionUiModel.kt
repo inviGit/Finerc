@@ -1,7 +1,5 @@
 package com.invi.finerc.domain.models
 
-import com.invi.finerc.data.entity.TransactionItemEntity
-
 data class TransactionUiModel(
     val id: Long,
     val source: TransactionSource,          // SMS / CC_STATEMENT / BANK_STATEMENT
@@ -15,7 +13,7 @@ data class TransactionUiModel(
     val note: String,                       // Extra Info
     val currencyCode: CurrencyType,
     val status: TransactionStatus,
-    val transactionItem: List<TransactionItemEntity>? = emptyList()
+    val transactionItems: List<TransactionItemModel>? = emptyList()
 )
 
 

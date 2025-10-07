@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.invi.finerc.data.entity.CollectionEntity
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import com.invi.finerc.ui.component.CollectionCard
 import com.invi.finerc.ui.viewmodel.CollectionsViewModel
 
@@ -58,28 +58,68 @@ fun CollectionsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     var showAddGroupDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var collectionToDelete by remember { mutableStateOf<CollectionUiModel?>(null) }
+    var collectionToDelete by remember { mutableStateOf<CollectionModel?>(null) }
     var showFabMenu by remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize().background(Color(0xFF0A0A0A))) {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Text("Collections", style = MaterialTheme.typography.headlineLarge, color = Color.White, fontWeight = FontWeight.Bold)
+    Box(Modifier
+        .fillMaxSize()
+        .background(Color(0xFF0A0A0A))) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Text(
+                "Collections",
+                style = MaterialTheme.typography.headlineLarge,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
             LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (isLoading) {
                     item {
-                        Box(Modifier.fillMaxWidth(), Alignment.Center) { CircularProgressIndicator(color = Color(0xFF00D4AA)) }
+                        Box(Modifier.fillMaxWidth(), Alignment.Center) {
+                            CircularProgressIndicator(
+                                color = Color(0xFF00D4AA)
+                            )
+                        }
                     }
                 } else if (collections.isEmpty()) {
                     item {
-                        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)), shape = RoundedCornerShape(16.dp)) {
-                            Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.Group, null, tint = Color.Gray, modifier = Modifier.size(48.dp))
+                        Card(
+                            Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(
+                                Modifier.padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.Group,
+                                    null,
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(48.dp)
+                                )
                                 Spacer(Modifier.height(16.dp))
-                                Text("No collections found", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    "No collections found",
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                                 Spacer(Modifier.height(8.dp))
-                                Text("Add a new collection to get started!", color = Color.Gray, fontSize = 14.sp)
+                                Text(
+                                    "Add a new collection to get started!",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
                             }
                         }
                     }
@@ -101,22 +141,42 @@ fun CollectionsScreen(
             }
         }
         // FAB menu
-        Box(Modifier.fillMaxSize().padding(16.dp), Alignment.BottomEnd) {
+        Box(Modifier
+            .fillMaxSize()
+            .padding(16.dp), Alignment.BottomEnd) {
             if (showFabMenu) {
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 70.dp)) {
-                    Button(onClick = { showAddGroupDialog = true }, colors = ButtonDefaults.buttonColors(Color.White)) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(bottom = 70.dp)
+                ) {
+                    Button(
+                        onClick = { showAddGroupDialog = true },
+                        colors = ButtonDefaults.buttonColors(Color.White)
+                    ) {
                         Text("Add New Collection", color = Color.Black)
                     }
                 }
             }
-            FloatingActionButton(onClick = { showFabMenu = !showFabMenu }, containerColor = Color(0xFF00D4AA)) {
-                Icon(if (showFabMenu) Icons.Default.Close else Icons.Default.Add, "Add Menu", tint = Color.Black)
+            FloatingActionButton(
+                onClick = { showFabMenu = !showFabMenu },
+                containerColor = Color(0xFF00D4AA)
+            ) {
+                Icon(
+                    if (showFabMenu) Icons.Default.Close else Icons.Default.Add,
+                    "Add Menu",
+                    tint = Color.Black
+                )
             }
         }
         if (showAddGroupDialog) {
             AddCollectionDialog(
                 onDismiss = { showAddGroupDialog = false },
-                onConfirm = { name -> viewModel.createCollection(name) { showAddGroupDialog = false } }
+                onConfirm = { name ->
+                    viewModel.createCollection(name) {
+                        showAddGroupDialog = false
+                    }
+                }
             )
         }
         if (showDeleteDialog && collectionToDelete != null) {
@@ -151,8 +211,8 @@ fun AddCollectionDialog(
             ) {
                 Text("Create", color = Color(0xFF00D4AA))
             }
-            },
-            dismissButton = {
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancel", color = Color.Gray)
             }
@@ -164,14 +224,14 @@ fun AddCollectionDialog(
                 fontWeight = FontWeight.Bold
             )
         },
-            text = {
-                Column {
+        text = {
+            Column {
                 Text(
                     "Enter a name for your collection:",
                     color = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                    OutlinedTextField(
+                OutlinedTextField(
                     value = collectionName,
                     onValueChange = { collectionName = it },
                     label = { Text("Collection Name") },
@@ -196,7 +256,7 @@ fun AddCollectionDialog(
 
 @Composable
 fun DeleteCollectionDialog(
-    collection: CollectionUiModel,
+    collection: CollectionModel,
     onDismiss: () -> Unit,
     onConfirm: (CollectionEntity) -> Unit
 ) {
@@ -887,7 +947,6 @@ fun DeleteCollectionDialog(
 //    )
 //    SpendGroupCard(group = sampleGroup, onClick = {})
 //}
-
 
 
 //@Composable

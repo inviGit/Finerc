@@ -200,7 +200,7 @@ enum class Category(
             "checkup",
             "treatment",
             "clinic"
-            )
+        )
     ),
 
     EDUCATION(

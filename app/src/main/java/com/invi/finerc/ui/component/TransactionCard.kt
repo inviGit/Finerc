@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.invi.finerc.data.entity.TransactionItemEntity
+import com.invi.finerc.domain.models.TransactionItemModel
 import com.invi.finerc.domain.models.TransactionUiModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -52,7 +52,7 @@ import java.util.Locale
 @Composable
 fun TransactionCard(
     message: TransactionUiModel,
-    items: List<TransactionItemEntity> = emptyList(),
+    items: List<TransactionItemModel> = emptyList(),
     onClick: (() -> Unit)? = null
 ) {
     val format = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
@@ -224,7 +224,7 @@ fun TransactionCard(
 
 @Composable
 fun TransactionItemRow(
-    item: TransactionItemEntity,
+    item: TransactionItemModel,
     format: NumberFormat
 ) {
     Row(

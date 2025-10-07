@@ -252,6 +252,7 @@ fun CategoryCard(
         }
     }
 }
+
 //UTILITIES
 fun getCategoryColors(category: Category): List<Color> {
     return when (category) {

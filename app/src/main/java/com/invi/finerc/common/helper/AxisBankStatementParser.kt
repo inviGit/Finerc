@@ -18,21 +18,30 @@ class AxisBankStatementParser {
     private val paymentDateFormat = SimpleDateFormat("dd MMM ''yy", Locale.ENGLISH)
     private val statementMonthFormat = SimpleDateFormat("MMM yyyy", Locale.ENGLISH)
     private val cardNumberRegex = Regex("(\\d{4}[\\*X]{4,}\\d{4})")
-    private val cardHolderRegex = Regex("""(?m)^(.*?)\nADDRESS""") // Assuming cardholder is first line before ADDRESS
+    private val cardHolderRegex =
+        Regex("""(?m)^(.*?)\nADDRESS""") // Assuming cardholder is first line before ADDRESS
     private val creditLimitRegex = Regex("""Credit Limit\s*₹\s*([\d,]+\.\d{2})""")
     private val paymentDueDateRegex = Regex("""Payment Due Date\s*(\d{2} \w{3} '\d{2})""")
     private val totalPaymentDueRegex = Regex("""Total Payment Due\s*₹\s*([\d,]+\.\d{2})""")
     private val minimumPaymentDueRegex = Regex("""Minimum Payment Due\s*₹\s*([\d,]+\.\d{2})""")
-    private val selectedStatementMonthRegex = Regex("""Selected Statement Month\s*₹\s*([\d,]+\.\d{2})""")
-    private val transactionLineRegex = Regex("""^(\d{2} \w{3} '\d{2})\s+(.*?)\s+₹\s*([\d,]+\.\d{2})\s+(Debit|Credit)$""")
+    private val selectedStatementMonthRegex =
+        Regex("""Selected Statement Month\s*₹\s*([\d,]+\.\d{2})""")
+    private val transactionLineRegex =
+        Regex("""^(\d{2} \w{3} '\d{2})\s+(.*?)\s+₹\s*([\d,]+\.\d{2})\s+(Debit|Credit)$""")
     private val TRANSACTION_SUMMARY_HEADER =
         Regex("""^\s*[\[\w]*\s*Transaction\s+Summary[\[\w]*\s*$""", RegexOption.IGNORE_CASE)
-    private val dateRegex = Regex("""^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '\d{2}$""")
+    private val dateRegex =
+        Regex("""^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '\d{2}$""")
     private val debitCreditRegex = Regex("""^(Debit|Credit)$""", RegexOption.IGNORE_CASE)
+
     /**
      * Parses CreditCardEntity from full statement text
      */
-    fun parseCreditCardEntity(statementText: String, lines: List<String>, paymentSummary: PaymentSummary): CreditCardEntity {
+    fun parseCreditCardEntity(
+        statementText: String,
+        lines: List<String>,
+        paymentSummary: PaymentSummary
+    ): CreditCardEntity {
         val cardNumberMasked = extractCardNumber(statementText)
         val cardHolderName = lines[1]
         val creditLimit = extractCreditLimit(statementText)
@@ -65,8 +74,10 @@ class AxisBankStatementParser {
      * Extract payment summary data
      */
     fun extractPaymentSummary(text: String): PaymentSummary {
-        val totalDueRaw = totalPaymentDueRegex.find(text)?.groupValues?.get(1)?.replace(",", "") ?: "0.0"
-        val minDueRaw = minimumPaymentDueRegex.find(text)?.groupValues?.get(1)?.replace(",", "") ?: "0.0"
+        val totalDueRaw =
+            totalPaymentDueRegex.find(text)?.groupValues?.get(1)?.replace(",", "") ?: "0.0"
+        val minDueRaw =
+            minimumPaymentDueRegex.find(text)?.groupValues?.get(1)?.replace(",", "") ?: "0.0"
         val dueDateStr = paymentDueDateRegex.find(text)?.groupValues?.get(1) ?: ""
         val selectedMonth = selectedStatementMonthRegex.find(text)?.groupValues?.get(1) ?: ""
 
@@ -97,7 +108,8 @@ class AxisBankStatementParser {
         val lines = statementText.lines()
         val transactions = mutableListOf<TransactionEntity>()
 
-        val startPattern = Regex("""^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '\d{2}""")
+        val startPattern =
+            Regex("""^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '\d{2}""")
         val endPattern = Regex("""(Debit|Credit)$""", RegexOption.IGNORE_CASE)
 
         var i = lines.indexOfFirst { TRANSACTION_SUMMARY_HEADER.containsMatchIn(it) }
@@ -126,9 +138,17 @@ class AxisBankStatementParser {
 
                 if (match != null) {
                     val (dateStr, detailsStart, amountStr, dc) = match.destructured
-                    val txnDate = try { dateFormat.parse(dateStr) } catch (e: Exception) { null }
+                    val txnDate = try {
+                        dateFormat.parse(dateStr)
+                    } catch (e: Exception) {
+                        null
+                    }
                     val amount = amountStr.replace(",", "").toDoubleOrNull() ?: 0.0
-                    val txnType = if (dc.equals("Credit", ignoreCase = true)) TransactionType.CREDIT else TransactionType.DEBIT
+                    val txnType = if (dc.equals(
+                            "Credit",
+                            ignoreCase = true
+                        )
+                    ) TransactionType.CREDIT else TransactionType.DEBIT
 
                     val dateMillis = txnDate?.time ?: 0L
                     val transactionId = AppUtils.generateTransactionId(

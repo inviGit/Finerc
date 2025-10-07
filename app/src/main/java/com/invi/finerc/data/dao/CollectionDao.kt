@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CollectionDao {
 
-    @Query("""
+    @Query(
+        """
         SELECT c.*, 
             COUNT(t.id) AS transactionCount,
             COALESCE(SUM(t.amount), 0) AS totalAmount
@@ -25,7 +26,8 @@ interface CollectionDao {
         LEFT JOIN collection_txn_mapping m ON c.id = m.collection_id
         LEFT JOIN transactions t ON t.id = m.txn_id
         GROUP BY c.id, c.name
-    """)
+    """
+    )
     fun getCollectionsWithStatsFlow(): Flow<List<CollectionWithStatsEntity>>
 
     @Transaction
@@ -72,6 +74,10 @@ interface CollectionDao {
 
     @Query("SELECT * FROM collection_item_exclusions WHERE collection_id = :collectionId")
     fun getExcludedItemsFlow(collectionId: Long): Flow<List<CollectionItemExclusionEntity>>
+
+    @Query("SELECT * FROM collection_item_exclusions WHERE collection_id = :collectionId")
+    suspend fun getExcludedItems(collectionId: Long): List<CollectionItemExclusionEntity>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExclusion(exclusion: CollectionItemExclusionEntity)

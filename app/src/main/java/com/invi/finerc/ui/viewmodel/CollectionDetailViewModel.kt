@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.invi.finerc.data.entity.CollectionSmsMappingEntity
-import com.invi.finerc.domain.models.CollectionUiModel
+import com.invi.finerc.domain.models.CollectionModel
 import com.invi.finerc.service.CollectionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +23,7 @@ class CollectionDetailViewModel @Inject constructor(
         "collectionId is required"
     }
 
-    val collectionWithTransaction: StateFlow<CollectionUiModel?> = collectionService
+    val collectionWithTransaction: StateFlow<CollectionModel?> = collectionService
         .getCollectionWithTransactionsFlow(collectionId)
         .stateIn(viewModelScope, SharingStarted.Lazily, null)
 

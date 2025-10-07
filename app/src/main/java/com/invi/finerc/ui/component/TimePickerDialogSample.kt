@@ -29,8 +29,10 @@ fun TimePickerDialogSample(
         val timePicker = remember {
             MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(Calendar.getInstance().apply { timeInMillis = initialTimeMillis }.get(Calendar.HOUR_OF_DAY))
-                .setMinute(Calendar.getInstance().apply { timeInMillis = initialTimeMillis }.get(Calendar.MINUTE))
+                .setHour(Calendar.getInstance().apply { timeInMillis = initialTimeMillis }
+                    .get(Calendar.HOUR_OF_DAY))
+                .setMinute(Calendar.getInstance().apply { timeInMillis = initialTimeMillis }
+                    .get(Calendar.MINUTE))
                 .build()
         }
 
